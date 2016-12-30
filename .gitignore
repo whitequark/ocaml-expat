@@ -1,0 +1,9 @@
+*.cm*
+*.o
+*.a
+*.so
+doc/*.html
+doc/*.css
+depend
+unittest
+unittest.opt
