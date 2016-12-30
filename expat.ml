@@ -5,6 +5,8 @@
 (* reserved. See  LICENCE for details.                                 *)
 (***********************************************************************)
 
+open Bytes
+
 type expat_parser
 
 type xml_error =
@@ -67,7 +69,10 @@ external external_entity_parser_create : expat_parser -> string option
 
 (* calls needed to parse *)
 external parse : expat_parser -> string -> unit =  "expat_XML_Parse"
+external parse_bytes : expat_parser -> bytes -> unit =  "expat_XML_Parse"
 external parse_sub : expat_parser -> string -> int -> int -> unit =
+    "expat_XML_ParseSub"
+external parse_sub_bytes : expat_parser -> bytes -> int -> int -> unit =
     "expat_XML_ParseSub"
 external final : expat_parser -> unit = "expat_XML_Final"
 

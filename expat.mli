@@ -5,6 +5,8 @@
 (* reserved. See  LICENCE for details.                                 *)
 (***********************************************************************)
 
+open Bytes
+
 (** The Ocaml Expat library provides an interface to the Expat XML Parser.
 
     Expat is a library, written C, for parsing XML documents. It's the
@@ -50,9 +52,17 @@ val external_entity_parser_create :
     @raise Expat_error error *)
 val parse : expat_parser -> string -> unit
 
+(** Let the parser parse a chunk of an XML document.
+    @raise Expat_error error *)
+val parse_bytes : expat_parser -> bytes -> unit
+
 (** Let the parser parse a chunk of an XML document in a substring
     @raise Expat_error error *)
 val parse_sub : expat_parser -> string -> int -> int -> unit
+
+(** Let the parser parse a chunk of an XML document in a substring
+    @raise Expat_error error *)
+val parse_sub_bytes : expat_parser -> bytes -> int -> int -> unit
 
 (** Inform the parser that the entire document has been parsed.  *)
 val final : expat_parser -> unit

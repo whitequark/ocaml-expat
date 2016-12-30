@@ -5,6 +5,7 @@
 (* LICENCE for details.                                                *)
 (***********************************************************************)
 
+open Bytes
 open Expat
 open OUnit
 
@@ -239,7 +240,6 @@ let suite = "expat" >:::
    "processing instruction handler" >::
      (fun _ ->
 	let p = parser_create None in
-	let buf = Buffer.create 10 in
 	let checked = ref false in
 	let pi_handler target data =
 	  assert_equal "target" target ~printer:String.escaped;
@@ -324,11 +324,6 @@ let suite = "expat" >:::
    "external entity ref handler" >::
      (fun _ ->
 	let p = parser_create None in
-	let print_data tag str =
-	  print_string tag;
-	  print_string str;
-	  print_newline ()
-	in
 	let buf = Buffer.create 10 in
 	let add_string = Buffer.add_string in
 	let external_entity_handler context base system_id public_id =
@@ -436,7 +431,7 @@ let suite = "expat" >:::
 	let rec create_and_collect_garbage = function
 	    0 -> Gc.full_major ()
 	  | n ->
-              let a = Array.init n (fun x -> String.create ((x + 2) * 200)) in
+              let a = Array.init n (fun x -> Bytes.create ((x + 2) * 200)) in
               let out = open_out "/dev/null" in
 		Array.iter (fun str -> output_string out str) a;
 		close_out out;
@@ -515,7 +510,7 @@ let suite = "expat" >:::
 	    set_start_element_handler p1 start_handler;
 	    set_character_data_handler p1 character_data_handler;
 	    let buflen = 1024 in
-	    let buf = String.create buflen in
+	    let buf = Bytes.create buflen in
 	    let xml_spec =
 	      open_in "REC-xml-19980210.xml"
 	    in
