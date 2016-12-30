@@ -517,7 +517,7 @@ let suite = "expat" >:::
 	    let buflen = 1024 in
 	    let buf = String.create buflen in
 	    let xml_spec =
-	      open_in "/home/maas/xml-samples/REC-xml-19980210.xml.txt"
+	      open_in "REC-xml-19980210.xml"
 	    in
 	    let rec parse _ =
 	      let n = input xml_spec buf 0 buflen in
