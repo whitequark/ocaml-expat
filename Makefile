@@ -54,7 +54,8 @@ $(XARCHIVE): $(CARCHIVE) $(XOBJECTS)
 install: all
 	{ test ! -f $(XARCHIVE) || extra="$(XARCHIVE) $(NAME)$(EXT_LIB)"; }; \
 	$(OCAMLFIND) install $(NAME) META $(NAME).cmi $(NAME).mli $(ARCHIVE) \
-	dll$(CARCHIVE_NAME)$(EXT_DLL) lib$(CARCHIVE_NAME)$(EXT_LIB) $$extra
+	lib$(CARCHIVE_NAME)$(EXT_LIB) $$extra \
+	-optional dll$(CARCHIVE_NAME)$(EXT_DLL)
 
 .PHONY: uninstall
 uninstall:
