@@ -19,12 +19,13 @@ CARCHIVE=lib$(CARCHIVE_NAME).a
 # Flags for the C compiler.
 CFLAGS=-DFULL_UNROLL -O2 -I$(EXPAT_INCDIR)
 
-OCAMLC=ocamlc
-OCAMLOPT=ocamlopt
-OCAMLDEP=ocamldep
-OCAMLMKLIB=ocamlmklib 
-OCAMLDOC=ocamldoc
 OCAMLFIND=ocamlfind
+OCAMLC=$(OCAMLFIND) ocamlc
+OCAMLOPT=$(OCAMLFIND) ocamlopt
+OCAMLDEP=$(OCAMLFIND) ocamldep
+OCAMLMKLIB=$(OCAMLFIND) ocamlmklib
+OCAMLDOC=$(OCAMLFIND) ocamldoc
+OCAMLDIR=$(shell $(OCAMLFIND) query stdlib)
 
 .PHONY: all
 all: $(ARCHIVE)
@@ -32,7 +33,7 @@ all: $(ARCHIVE)
 allopt:  $(XARCHIVE)
 
 depend: *.c *.ml *.mli
-	gcc -MM *.c > depend	
+	gcc -I $(OCAMLDIR) -MM *.c > depend
 	$(OCAMLDEP) *.mli *.ml >> depend
 
 ## Library creation
@@ -66,7 +67,7 @@ doc: FORCE
 .PHONY: testall
 testall: test testopt
 .PHONY: test
-test: unittest 	
+test: unittest
 	./unittest
 .PHONY: testopt
 testopt: unittest.opt
@@ -98,6 +99,3 @@ FORCE:
 	$(OCAMLC) -c -ccopt "$(CFLAGS)" $<
 
 include depend
-
-
-
