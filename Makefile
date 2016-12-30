@@ -9,12 +9,12 @@ EXPAT_INCDIR=/usr/local/include
 NAME=expat
 OBJECTS=expat.cmo
 XOBJECTS=$(OBJECTS:.cmo=.cmx)
-C_OBJECTS=expat_stubs.o
+C_OBJECTS=expat_stubs$(EXT_OBJ)
 
 ARCHIVE=$(NAME).cma
 XARCHIVE=$(ARCHIVE:.cma=.cmxa)
 CARCHIVE_NAME=mlexpat
-CARCHIVE=lib$(CARCHIVE_NAME).a
+CARCHIVE=lib$(CARCHIVE_NAME)$(EXT_LIB)
 
 # Flags for the C compiler.
 CFLAGS=-DFULL_UNROLL -O2 -I$(EXPAT_INCDIR)
@@ -26,6 +26,7 @@ OCAMLDEP=$(OCAMLFIND) ocamldep
 OCAMLMKLIB=$(OCAMLFIND) ocamlmklib
 OCAMLDOC=$(OCAMLFIND) ocamldoc
 OCAMLDIR=$(shell $(OCAMLFIND) query stdlib)
+include $(OCAMLDIR)/Makefile.config
 
 .PHONY: all
 all: $(ARCHIVE)
@@ -50,9 +51,9 @@ $(XARCHIVE): $(CARCHIVE) $(XOBJECTS)
 ## Installation
 .PHONY: install
 install: all
-	{ test ! -f $(XARCHIVE) || extra="$(XARCHIVE) $(NAME).a"; }; \
+	{ test ! -f $(XARCHIVE) || extra="$(XARCHIVE) $(NAME)$(EXT_LIB)"; }; \
 	$(OCAMLFIND) install $(NAME) META $(NAME).cmi $(NAME).mli $(ARCHIVE) \
-	dll$(CARCHIVE_NAME).so lib$(CARCHIVE_NAME).a $$extra
+	dll$(CARCHIVE_NAME)$(EXT_DLL) lib$(CARCHIVE_NAME)$(EXT_LIB) $$extra
 
 .PHONY: uninstall
 uninstall:
@@ -82,7 +83,7 @@ unittest.opt: allopt unittest.ml
 ## Cleaning up
 .PHONY: clean
 clean::
-	rm -f *~ *.cm* *.o *.a *.so doc/*.html doc/*.css depend \
+	rm -f *~ *.cm* *$(EXT_OBJ) *$(EXT_LIB) *$(EXT_DLL) doc/*.html doc/*.css depend \
 	unittest unittest.opt
 
 FORCE:

@@ -1,7 +1,10 @@
 *.cm*
 *.o
+*.obj
 *.a
+*.lib
 *.so
+*.dll
 doc/*.html
 doc/*.css
 depend
