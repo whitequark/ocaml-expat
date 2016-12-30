@@ -1,0 +1,40 @@
+		       The ocaml-expat library
+
+Overview
+
+  Ocaml-Expat is a wrapper for the Expat XML parsing library. Expat is
+  a library, written in C, for parsing XML documents. It's the
+  underlying XML parser for the open source Mozilla project, Perl's
+  XML::Parser, Python's xml.parsers.expat, and other open-source XML
+  parsers.
+
+Installation
+
+  - Edit the variables at the beginning of the Makefile to reflect the
+    location where expat is installed on your system. The defaults are
+    ok for Linux.
+
+  - Do "make depend" and "make all"	
+
+  - If the Objective Caml native-code compiler is available on your
+    platform (look for the "ocamlopt" executable), do "make allopt".
+
+  - To generate the documentation, do "make doc"
+
+  - (Optional) To test the library, do "make test". This requires the
+    installation of OUnit.
+
+  - (Optional) To test the library compiled with ocamlopt and ocamlc,
+    do "make testall". This requires the installation of OUnit.
+
+  - Become super-user if necessary and do "make install".  This
+    installs the library in the standard Objective Caml library
+    directory.
+  
+Documentation
+
+  See the HTML documentation in doc/index.html
+
+References
+
+  Expat: <http://www.libexpat.org>
