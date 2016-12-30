@@ -10,3 +10,4 @@ doc/*.css
 depend
 unittest
 unittest.opt
+oUnit*.cache

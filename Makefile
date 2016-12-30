@@ -84,7 +84,7 @@ unittest.opt: allopt unittest.ml
 .PHONY: clean
 clean::
 	rm -f *~ *.cm* *$(EXT_OBJ) *$(EXT_LIB) *$(EXT_DLL) doc/*.html doc/*.css depend \
-	unittest unittest.opt
+	unittest unittest.opt oUnit*.cache
 
 FORCE:
 
