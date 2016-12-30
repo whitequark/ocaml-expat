@@ -42,7 +42,7 @@ external xml_error_to_string : xml_error -> string = "expat_XML_ErrorString"
 
 (* exception is currently too minimalistic (needs line-no, etc), but it's *)
 (* a start *)
-let _ = Callback.register_exception "expat_error" (Expat_error NONE) 
+let _ = Callback.register_exception "expat_error" (Expat_error NONE)
 
 (* param entity handling *)
 type xml_param_entity_parsing_choice =
@@ -50,7 +50,7 @@ type xml_param_entity_parsing_choice =
   | UNLESS_STANDALONE
   | ALWAYS
 
-external set_param_entity_parsing : expat_parser -> 
+external set_param_entity_parsing : expat_parser ->
   xml_param_entity_parsing_choice -> bool =
     "expat_XML_SetParamEntityParsing"
 
@@ -58,40 +58,40 @@ external set_param_entity_parsing : expat_parser ->
 external expat_version : unit -> string = "expat_XML_ExpatVersion"
 
 (* calls to create a parser *)
-external parser_create : encoding:string option -> expat_parser = 
+external parser_create : encoding:string option -> expat_parser =
     "expat_XML_ParserCreate"
-external parser_create_ns : encoding:string option -> separator:char 
+external parser_create_ns : encoding:string option -> separator:char
   -> expat_parser = "expat_XML_ParserCreateNS"
-external external_entity_parser_create : expat_parser -> string option 
+external external_entity_parser_create : expat_parser -> string option
   -> string option -> expat_parser = "expat_XML_ExternalEntityParserCreate"
 
 (* calls needed to parse *)
 external parse : expat_parser -> string -> unit =  "expat_XML_Parse"
-external parse_sub : expat_parser -> string -> int -> int -> unit = 
+external parse_sub : expat_parser -> string -> int -> int -> unit =
     "expat_XML_ParseSub"
 external final : expat_parser -> unit = "expat_XML_Final"
 
 (* start element handler calls *)
-external set_start_element_handler : expat_parser -> 
-  (string -> (string * string) list -> unit) -> unit = 
+external set_start_element_handler : expat_parser ->
+  (string -> (string * string) list -> unit) -> unit =
     "expat_XML_SetStartElementHandler"
-external reset_start_element_handler : expat_parser -> unit = 
+external reset_start_element_handler : expat_parser -> unit =
     "expat_XML_ResetStartElementHandler"
 
 (* end element handler calls *)
-external set_end_element_handler : expat_parser -> (string -> unit) -> unit = 
+external set_end_element_handler : expat_parser -> (string -> unit) -> unit =
     "expat_XML_SetEndElementHandler"
-external reset_end_element_handler : expat_parser -> unit = 
+external reset_end_element_handler : expat_parser -> unit =
     "expat_XML_ResetEndElementHandler"
 
 (* character data handler calls *)
-external set_character_data_handler : expat_parser -> (string -> unit) -> unit = 
+external set_character_data_handler : expat_parser -> (string -> unit) -> unit =
     "expat_XML_SetCharacterDataHandler"
-external reset_character_data_handler : expat_parser -> unit = 
+external reset_character_data_handler : expat_parser -> unit =
     "expat_XML_ResetCharacterDataHandler"
 
 (* processing instruction handler calls *)
-external set_processing_instruction_handler : expat_parser -> 
+external set_processing_instruction_handler : expat_parser ->
   (string -> string -> unit) -> unit =
     "expat_XML_SetProcessingInstructionHandler"
 external reset_processing_instruction_handler : expat_parser -> unit =
@@ -108,7 +108,7 @@ external set_start_cdata_handler : expat_parser -> (unit -> unit) -> unit =
     "expat_XML_SetStartCDataHandler"
 external reset_start_cdata_handler : expat_parser -> unit =
     "expat_XML_ResetStartCDataHandler"
-    
+
 (* end cdata handler *)
 external set_end_cdata_handler : expat_parser -> (unit -> unit) -> unit =
   "expat_XML_SetEndCDataHandler"
@@ -122,20 +122,20 @@ external reset_default_handler : expat_parser -> unit =
     "expat_XML_ResetDefaultHandler"
 
 (* external entity ref handler *)
-external set_external_entity_ref_handler : expat_parser -> 
-  (string option -> string option -> string -> string option -> unit) -> 
+external set_external_entity_ref_handler : expat_parser ->
+  (string option -> string option -> string -> string option -> unit) ->
   unit = "expat_XML_SetExternalEntityRefHandler"
 external reset_external_entity_ref_handler : expat_parser -> unit =
     "expat_XML_ResetDefaultHandler"
 
 (* some general parser query calls *)
-external get_current_byte_index : expat_parser -> int = 
+external get_current_byte_index : expat_parser -> int =
     "expat_XML_GetCurrentByteIndex"
-external get_current_column_number : expat_parser -> int = 
+external get_current_column_number : expat_parser -> int =
     "expat_XML_GetCurrentColumnNumber"
-external get_current_line_number : expat_parser -> int = 
+external get_current_line_number : expat_parser -> int =
     "expat_XML_GetCurrentLineNumber"
-external get_current_byte_count : expat_parser -> int = 
+external get_current_byte_count : expat_parser -> int =
     "expat_XML_GetCurrentByteCount"
 
 (* set/get base *)

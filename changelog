@@ -4,7 +4,7 @@ ocaml-expat-0.9.0
 
 ocaml-expat-0.1.0
 
-  - Made the installation independant of the use of ocamlopt. 
+  - Made the installation independant of the use of ocamlopt.
 
 ocaml-expat-0.0.8
 
@@ -12,8 +12,8 @@ ocaml-expat-0.0.8
 
 ocaml-expat-0.0.7
 
-  - Add Olivier Andrieu's option handling fix, 
-  
+  - Add Olivier Andrieu's option handling fix,
+
   - Included XML_STATUS_OK defines required by older versions of Expat
     (also flagged by Olivier Andrieu)
 
@@ -45,16 +45,16 @@ ocaml-expat-0.0.3
     by Alain Frisch.
 
   - Initialize handlers to Val_unit before a register_global_root
-	
+
 ocaml-expat-0.0.2
 
   - Add Olivier Andrieu's garbage collection, and finalization bug
     fix.
-	
+
   - Enabled tests which fail with expat_1.95.5, but succeed with
     expat_1.95.6 (a counting problem)
-	
+
 ocaml-expat-0.0.1
 
   - First release of ocaml-expat
-	
+

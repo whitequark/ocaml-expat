@@ -14,7 +14,7 @@ Installation
     location where expat is installed on your system. The defaults are
     ok for Linux.
 
-  - Do "make depend" and "make all"	
+  - Do "make depend" and "make all"
 
   - If the Objective Caml native-code compiler is available on your
     platform (look for the "ocamlopt" executable), do "make allopt".
@@ -30,7 +30,7 @@ Installation
   - Become super-user if necessary and do "make install".  This
     installs the library in the standard Objective Caml library
     directory.
-  
+
 Documentation
 
   See the HTML documentation in doc/index.html

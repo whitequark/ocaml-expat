@@ -1,7 +1,7 @@
 /***********************************************************************/
 /* The OcamlExpat library                                              */
 /*                                                                     */
-/* Copyright 2002, 2003 Maas-Maarten Zeeman. All rights reserved. See  */ 
+/* Copyright 2002, 2003 Maas-Maarten Zeeman. All rights reserved. See  */
 /* LICENCE for details.                                                */
 /***********************************************************************/
 
@@ -29,7 +29,7 @@
 
 #define XML_Parser_val(v) (*((XML_Parser *) Data_custom_val(v)))
 
-/* 
+/*
  * Define the place where the handlers will be located inside the
  * handler tuple which is registered as global root. Handlers for
  * new functions should go here.
@@ -48,12 +48,12 @@ enum expat_handler {
     NUM_HANDLERS /* keep this at the end */
 };
 
-/* 
+/*
  * Return None if a null string is passed as a parameter, and Some str
- * if a string is used.  
+ * if a string is used.
  */
 static value
-Val_option_string(const char *str) 
+Val_option_string(const char *str)
 {
     CAMLparam0();
     CAMLlocal2(some, some_str);
@@ -72,41 +72,41 @@ Val_option_string(const char *str)
  * Return NULL if we have None, Some str otherwise.
  */
 static char *
-String_option_val(value string_option) 
+String_option_val(value string_option)
 {
-    if (Is_block(string_option)) 
+    if (Is_block(string_option))
 	return String_val(Field(string_option, 0));
     return NULL;
 }
 
-static void 
-xml_parser_finalize(value parser) 
-{ 
+static void
+xml_parser_finalize(value parser)
+{
     XML_Parser xml_parser = XML_Parser_val(parser);
     value *handlers = XML_GetUserData(xml_parser);
 
     /* The handlers are no longer needed */
     *handlers = Val_unit;
     remove_global_root(handlers);
-    
+
     /* Free the memory occupied by the parser */
     XML_ParserFree(xml_parser);
     caml_stat_free(handlers);
 }
 
-static int 
-xml_parser_compare(value v1, value v2) 
-{ 
+static int
+xml_parser_compare(value v1, value v2)
+{
     XML_Parser p1 = XML_Parser_val(v1);
     XML_Parser p2 = XML_Parser_val(v2);
     if(p1 == p2) return 0;
-    if(p1 < p2) return -1; 
+    if(p1 < p2) return -1;
     return 1;
 }
 
-static long 
-xml_parser_hash(value v) 
-{ 
+static long
+xml_parser_hash(value v)
+{
     return (long) XML_Parser_val(v);
 }
 
@@ -116,7 +116,7 @@ static struct custom_operations xml_parser_ops = {
     xml_parser_compare,
     xml_parser_hash,
     custom_serialize_default,
-    custom_deserialize_default    
+    custom_deserialize_default
 };
 
 static value
@@ -128,19 +128,19 @@ create_ocaml_expat_parser(XML_Parser xml_parser)
     int i;
     value *handlers;
 
-    /* 
+    /*
      * I don't know how to find out how much memory the parser consumes,
-     * so I've set some figures here, which seems to do well.  
+     * so I've set some figures here, which seems to do well.
      */
     parser = alloc_custom(&xml_parser_ops, sizeof(XML_Parser), 1, 5000);
     XML_Parser_val(parser) = xml_parser;
-    
-    /* 
+
+    /*
      * Malloc a value for a tuple which will contain the callback
-     * handlers and register it as global root.  
+     * handlers and register it as global root.
      */
     handlers = caml_stat_alloc(sizeof *handlers);
-    *handlers = Val_unit; 
+    *handlers = Val_unit;
     register_global_root(handlers);
 
     /*
@@ -151,40 +151,40 @@ create_ocaml_expat_parser(XML_Parser xml_parser)
 	Field(*handlers, i) = Val_unit;
     }
 
-    /* 
-     * Associate it as user data with the parser. This is possible because 
-     * a global root will not be relocated. 
+    /*
+     * Associate it as user data with the parser. This is possible because
+     * a global root will not be relocated.
      */
     XML_SetUserData(xml_parser, handlers);
-    
+
     CAMLreturn (parser);
 }
 
-/* 
- * parser_create : encoding:string option -> expat_parser = 
- *   "expat_XML_ParserCreate" 
+/*
+ * parser_create : encoding:string option -> expat_parser =
+ *   "expat_XML_ParserCreate"
  */
-CAMLprim value 
+CAMLprim value
 expat_XML_ParserCreate(value encoding)
 {
-    
+
     return create_ocaml_expat_parser(XML_ParserCreate(String_option_val(encoding)));
 }
 
 /*
- * parser_create_ns : encoding:string option -> separator:char -> expat_parser = 
+ * parser_create_ns : encoding:string option -> separator:char -> expat_parser =
  *   "expat_XML_ParserCreateNS"
  */
 CAMLprim value
 expat_XML_ParserCreateNS(value encoding, value sep)
-{ 
+{
     return create_ocaml_expat_parser(XML_ParserCreateNS(String_option_val(encoding),
 							(char) Long_val(sep)));
 }
 
 /*
- * external_entity_parser_create : expat_parser -> context:string option 
- *               -> encoding:string option -> expat_parser = 
+ * external_entity_parser_create : expat_parser -> context:string option
+ *               -> encoding:string option -> expat_parser =
  *   "expat_XML_ExternalEntityParserCreate"
  */
 CAMLprim value
@@ -195,18 +195,18 @@ expat_XML_ExternalEntityParserCreate(value p, value context, value encoding) {
     value *handlers, *parent_handlers;
 
     XML_Parser xml_parser = \
-	XML_ExternalEntityParserCreate(XML_Parser_val(p), 
-				       String_option_val(context), 
+	XML_ExternalEntityParserCreate(XML_Parser_val(p),
+				       String_option_val(context),
 				       String_option_val(encoding));
     parser = alloc_custom(&xml_parser_ops, sizeof(XML_Parser), 1, 5000);
     XML_Parser_val(parser) = xml_parser;
-    
-    /* 
+
+    /*
      * Malloc a value for a tuple which will contain the callback
-     * handlers and register it as global root.  
+     * handlers and register it as global root.
      */
     handlers = caml_stat_alloc(sizeof *handlers);
-    *handlers = Val_unit; 
+    *handlers = Val_unit;
     register_global_root(handlers);
 
     /*
@@ -219,13 +219,13 @@ expat_XML_ExternalEntityParserCreate(value p, value context, value encoding) {
 	Field(*handlers, i) = Field(*parent_handlers, i);
     }
 
-    /* 
+    /*
      * Associate inherited handlers it as user data with the
      * parser. This is possible because a global root will not be
      * relocated.
      */
     XML_SetUserData(xml_parser, handlers);
-    
+
     CAMLreturn (parser);
 }
 
@@ -234,7 +234,7 @@ expat_XML_ExternalEntityParserCreate(value p, value context, value encoding) {
  * get_base : expat_parser -> string option
  */
 CAMLprim value
-expat_XML_GetBase(value parser) 
+expat_XML_GetBase(value parser)
 {
     CAMLparam1(parser);
     CAMLlocal1(option);
@@ -242,45 +242,45 @@ expat_XML_GetBase(value parser)
 
     base = XML_GetBase(XML_Parser_val(parser));
     option = Val_option_string(base);
-    
-    CAMLreturn (option);    
+
+    CAMLreturn (option);
 }
 
 /*
  * val set_base : expat_parser -> string option -> unit
  */
 CAMLprim value
-expat_XML_SetBase(value parser, value string) 
+expat_XML_SetBase(value parser, value string)
 {
     CAMLparam2(parser, string);
-    
+
     XML_SetBase(XML_Parser_val(parser), String_option_val(string));
-    
+
     CAMLreturn (Val_unit);
 }
 
-/* 
- * external get_current_byte_index : expat_parser -> int = 
+/*
+ * external get_current_byte_index : expat_parser -> int =
  *   "expat_XML_GetCurrentByteIndex"
  */
 CAMLprim value
 expat_XML_GetCurrentByteIndex(value parser)
 {
-    return Val_long(XML_GetCurrentByteIndex(XML_Parser_val(parser))); 
+    return Val_long(XML_GetCurrentByteIndex(XML_Parser_val(parser)));
 }
 
-/* 
- * external get_current_byte_count : expat_parser -> int = 
+/*
+ * external get_current_byte_count : expat_parser -> int =
  *   "expat_XML_GetCurrentByteCount"
  */
 CAMLprim value
 expat_XML_GetCurrentByteCount(value parser)
 {
-    return Val_long(XML_GetCurrentByteCount(XML_Parser_val(parser))); 
+    return Val_long(XML_GetCurrentByteCount(XML_Parser_val(parser)));
 }
 
-/* 
- * external get_current_column_number : expat_parser -> int = 
+/*
+ * external get_current_column_number : expat_parser -> int =
  *   "expat_XML_GetCurrentColumnNumber"
  */
 CAMLprim value
@@ -290,7 +290,7 @@ expat_XML_GetCurrentColumnNumber(value parser)
 }
 
 /*
- * external get_current_line_number : expat_parser -> int = 
+ * external get_current_line_number : expat_parser -> int =
  *   "expat_XML_GetCurrentLineNumber"
  */
 CAMLprim value
@@ -308,15 +308,15 @@ expat_XML_ExpatVersion(value unit)
     return copy_string(XML_ExpatVersion());
 }
 
-/* 
- * external set_param_entity_parsing : expat_parser -> 
+/*
+ * external set_param_entity_parsing : expat_parser ->
  *   xml_param_entity_parsing_choice -> bool =
  *     "expat_XML_SetParamEntityParsing"
  */
 CAMLprim value
 expat_XML_SetParamEntityParsing(value parser, value choice) {
     CAMLparam2(parser, choice);
-    CAMLreturn (Val_bool(XML_SetParamEntityParsing(XML_Parser_val(parser), 
+    CAMLreturn (Val_bool(XML_SetParamEntityParsing(XML_Parser_val(parser),
 						   Int_val(choice))));
 }
 
@@ -333,19 +333,19 @@ expat_XML_ErrorString(value error_code)
      * will return an empty string whenever this happens. Note:
      * it checks for NULL, because that is the safest way.
      */
-    if (error_string == NULL) 
+    if (error_string == NULL)
 	CAMLreturn (alloc_string(0));
     CAMLreturn (copy_string(error_string));
 }
 
-/* 
+/*
  * Raise an expat_error exception
  */
 static void
 expat_error(int error_code)
 {
     static value * expat_error_exn = NULL;
-    
+
     if(expat_error_exn == NULL) {
 	expat_error_exn = caml_named_value("expat_error");
 	if(expat_error_exn == NULL) {
@@ -368,12 +368,12 @@ expat_XML_Parse(value parser, value string)
     if(!XML_Parse(xml_parser, String_val(string), string_length(string), 0)) {
 	expat_error(XML_GetErrorCode(xml_parser));
     }
-  
+
     CAMLreturn (Val_unit);
 }
 
 /*
- * external parse_sub : expat_parser -> string -> int -> int -> unit = 
+ * external parse_sub : expat_parser -> string -> int -> int -> unit =
  *   "expat_XML_ParseSub"
  */
 CAMLprim value
@@ -394,7 +394,7 @@ expat_XML_ParseSub(value vparser, value vstring, value voffset, value vlen)
     if(!XML_Parse(parser, string + offset, len, 0)) {
 	expat_error(XML_GetErrorCode(parser));
     }
-  
+
     CAMLreturn (Val_unit);
 }
 
@@ -404,20 +404,20 @@ expat_XML_ParseSub(value vparser, value vstring, value voffset, value vlen)
 CAMLprim value
 expat_XML_Final(value parser)
 {
-    CAMLparam1(parser); 
+    CAMLparam1(parser);
     XML_Parser xml_parser =  XML_Parser_val(parser);
 
     if(!XML_Parse(xml_parser, NULL, 0, 1)) {
 	expat_error(XML_GetErrorCode(xml_parser));
     }
-  
+
     CAMLreturn (Val_unit);
 }
 
 /*
  * Start element handling, setting and resetting.
  */
-static void 
+static void
 start_element_handler(void *user_data, const char *name, const char **attr)
 {
     CAMLparam0();
@@ -434,14 +434,14 @@ start_element_handler(void *user_data, const char *name, const char **attr)
 	att = alloc_tuple(2);
 	Store_field(att, 0, copy_string(attr[i]));
 	Store_field(att, 1, copy_string(attr[i + 1]));
-    
+
 	/* Create a cons */
 	cons = alloc_tuple(2);
 	Store_field(cons, 0, att);
 	Store_field(cons, 1, Val_unit);
 	if(prev != Val_unit) {
-	    Store_field(prev, 1, cons);      
-	} 
+	    Store_field(prev, 1, cons);
+	}
 	prev = cons;
 	if(list == Val_unit) {
 	    list = cons;
@@ -449,7 +449,7 @@ start_element_handler(void *user_data, const char *name, const char **attr)
     }
     tag = copy_string(name);
     callback2(Field(*handlers, EXPAT_START_ELEMENT_HANDLER), tag, list);
-  
+
     CAMLreturn0;
 }
 
@@ -462,14 +462,14 @@ static value set_start_handler(value parser,
     value *handlers = XML_GetUserData(xml_parser);
 
     Store_field(*handlers, EXPAT_START_ELEMENT_HANDLER, ocaml_handler);
-    XML_SetStartElementHandler(xml_parser, c_handler); 
+    XML_SetStartElementHandler(xml_parser, c_handler);
 
     CAMLreturn (Val_unit);
 }
 
-/* 
- * external set_start_element_handler : expat_parser -> 
- *  (string -> (string * string) list -> unit) -> unit = 
+/*
+ * external set_start_element_handler : expat_parser ->
+ *  (string -> (string * string) list -> unit) -> unit =
  *   "expat_XML_SetStartElementHandler"
  */
 CAMLprim value
@@ -479,8 +479,8 @@ expat_XML_SetStartElementHandler(value parser, value handler)
     CAMLreturn (set_start_handler(parser, start_element_handler, handler));
 }
 
-/* 
- * external reset_start_element_handler : expat_parser -> unit = 
+/*
+ * external reset_start_element_handler : expat_parser -> unit =
  *   "expat_XML_ResetStartElementHandler"
  */
 CAMLprim value
@@ -495,13 +495,13 @@ end_element_handler(void *user_data, const char *name)
 {
     value tag;
     value *handlers = user_data;
-    
+
     tag = copy_string(name);
     callback(Field(*handlers, EXPAT_END_ELEMENT_HANDLER), tag);
 }
 
-static value 
-set_end_handler(value parser, XML_EndElementHandler c_handler, 
+static value
+set_end_handler(value parser, XML_EndElementHandler c_handler,
 		value ocaml_handler)
 {
     CAMLparam2(parser, ocaml_handler);
@@ -509,13 +509,13 @@ set_end_handler(value parser, XML_EndElementHandler c_handler,
     value *handlers = XML_GetUserData(xml_parser);
 
     Store_field(*handlers, EXPAT_END_ELEMENT_HANDLER, ocaml_handler);
-    XML_SetEndElementHandler(xml_parser, c_handler); 
+    XML_SetEndElementHandler(xml_parser, c_handler);
 
     CAMLreturn (Val_unit);
 }
 
-/* 
- * external set_end_element_handler : expat_parser -> (string -> unit) -> unit = 
+/*
+ * external set_end_element_handler : expat_parser -> (string -> unit) -> unit =
  *   "expat_XML_SetEndElementHandler"
  */
 CAMLprim value
@@ -525,8 +525,8 @@ expat_XML_SetEndElementHandler(value parser, value handler)
     CAMLreturn (set_end_handler(parser, end_element_handler, handler));
 }
 
-/* 
- * external reset_end_element_handler : expat_parser -> unit = 
+/*
+ * external reset_end_element_handler : expat_parser -> unit =
  *   "expat_XML_ResetEndElementHandler"
  */
 CAMLprim value
@@ -569,19 +569,19 @@ static value set_character_data_handler(value parser,
 
 
 /*
- * external set_character_data_handler : expat_parser -> (string -> unit) -> unit = 
+ * external set_character_data_handler : expat_parser -> (string -> unit) -> unit =
  *   "expat_XML_SetCharacterDataHandler"
  */
 CAMLprim value
 expat_XML_SetCharacterDataHandler(value parser, value handler)
 {
     CAMLparam2(parser, handler);
-    CAMLreturn (set_character_data_handler(parser, character_data_handler, 
+    CAMLreturn (set_character_data_handler(parser, character_data_handler,
 					   handler));
 }
 
-/* 
- * external reset_end_element_handler : expat_parser -> unit = 
+/*
+ * external reset_end_element_handler : expat_parser -> unit =
  *   "expat_XML_ResetEndElementHandler"
  */
 CAMLprim value
@@ -595,7 +595,7 @@ expat_XML_ResetCharacterDataHandler(value parser)
  * Process instruction, setting and resetting
  */
 static void
-processing_instruction_handler(void *user_data,  const char *target,  
+processing_instruction_handler(void *user_data,  const char *target,
 			       const char *data)
 {
     CAMLparam0();
@@ -609,7 +609,7 @@ processing_instruction_handler(void *user_data,  const char *target,
     CAMLreturn0;
 }
 
-static value 
+static value
 set_processing_instruction_handler(value parser,
 				   XML_ProcessingInstructionHandler c_handler,
 				   value ocaml_handler)
@@ -618,15 +618,15 @@ set_processing_instruction_handler(value parser,
     XML_Parser xml_parser = XML_Parser_val(parser);
     value *handlers = XML_GetUserData(xml_parser);
 
-    Store_field(*handlers, 
+    Store_field(*handlers,
 		EXPAT_PROCESSING_INSTRUCTION_HANDLER, ocaml_handler);
     XML_SetProcessingInstructionHandler(xml_parser, c_handler);
 
     CAMLreturn (Val_unit);
 }
 
-/* 
- * external set_processing_instruction_handler : expat_parser -> 
+/*
+ * external set_processing_instruction_handler : expat_parser ->
  *   (string -> string -> unit) -> unit =
  *      "expat_XML_SetProcessingInstructionHandler"
  */
@@ -634,8 +634,8 @@ CAMLprim value
 expat_XML_SetProcessingInstructionHandler(value parser, value handler)
 {
     CAMLparam2(parser, handler);
-    CAMLreturn (set_processing_instruction_handler(parser, 
-						   processing_instruction_handler, 
+    CAMLreturn (set_processing_instruction_handler(parser,
+						   processing_instruction_handler,
 						   handler));
 }
 
@@ -666,21 +666,21 @@ comment_handler(void *user_data, const char *data)
     CAMLreturn0;
 }
 
-static value 
-set_comment_handler(value parser, 
+static value
+set_comment_handler(value parser,
 		    XML_CommentHandler c_handler, value ocaml_handler)
 {
     CAMLparam2(parser, ocaml_handler);
     XML_Parser xml_parser = XML_Parser_val(parser);
     value *handlers = XML_GetUserData(xml_parser);
-  
+
     Store_field(*handlers, EXPAT_COMMENT_HANDLER, ocaml_handler);
     XML_SetCommentHandler(xml_parser, c_handler);
 
     CAMLreturn (Val_unit);
 }
 
-/* 
+/*
  * external set_comment_handler : expat_parser -> (string -> unit) -> unit =
  *   "expat_XML_SetCommentHandler"
  */
@@ -691,7 +691,7 @@ expat_XML_SetCommentHandler(value parser, value handler)
     CAMLreturn (set_comment_handler(parser, comment_handler, handler));
 }
 
-/* 
+/*
  * external reset_comment_handler : expat_parser -> unit =
  *   "expat_XML_ResetCommentHandler"
  */
@@ -706,11 +706,11 @@ expat_XML_ResetCommentHandler(value parser)
  * Start CData handler, setting and resetting
  */
 static void
-start_cdata_handler(void *user_data) 
+start_cdata_handler(void *user_data)
 {
     CAMLparam0();
     value *handlers = user_data;
-  
+
     callback(Field(*handlers, EXPAT_START_CDATA_HANDLER), Val_unit);
 
     CAMLreturn0;
@@ -718,16 +718,16 @@ start_cdata_handler(void *user_data)
 
 static value
 set_start_cdata_handler(value parser,
-			XML_StartCdataSectionHandler c_handler, 
+			XML_StartCdataSectionHandler c_handler,
 			value ocaml_handler)
 {
     CAMLparam2(parser, ocaml_handler);
     XML_Parser xml_parser = XML_Parser_val(parser);
     value *handlers = XML_GetUserData(xml_parser);
-  
+
     Store_field(*handlers, EXPAT_START_CDATA_HANDLER, ocaml_handler);
     XML_SetStartCdataSectionHandler(xml_parser, c_handler);
-  
+
     CAMLreturn (Val_unit);
 }
 
@@ -757,7 +757,7 @@ expat_XML_ResetStartCDataHandler(value parser)
  * End CData handler, setting and resetting
  */
 static void
-end_cdata_handler(void *user_data) 
+end_cdata_handler(void *user_data)
 {
     CAMLparam0();
     value *handlers = user_data;
@@ -769,7 +769,7 @@ end_cdata_handler(void *user_data)
 
 static value
 set_end_cdata_handler(value parser,
-		      XML_EndCdataSectionHandler c_handler, 
+		      XML_EndCdataSectionHandler c_handler,
 		      value ocaml_handler)
 {
     CAMLparam2(parser, ocaml_handler);
@@ -778,7 +778,7 @@ set_end_cdata_handler(value parser,
 
     Store_field(*handlers, EXPAT_END_CDATA_HANDLER, ocaml_handler);
     XML_SetEndCdataSectionHandler(xml_parser, c_handler);
-  
+
     CAMLreturn (Val_unit);
 }
 
@@ -809,7 +809,7 @@ expat_XML_ResetEndCDataHandler(value parser)
  * Default handler, setting and resetting
  */
 static void
-default_handler(void *user_data, const char *data, int len) 
+default_handler(void *user_data, const char *data, int len)
 {
     CAMLparam0();
     CAMLlocal1(d);
@@ -824,7 +824,7 @@ default_handler(void *user_data, const char *data, int len)
 
 static value
 set_default_handler(value parser,
-		    XML_DefaultHandler c_handler, 
+		    XML_DefaultHandler c_handler,
 		    value ocaml_handler)
 {
     CAMLparam2(parser, ocaml_handler);
@@ -833,11 +833,11 @@ set_default_handler(value parser,
 
     Store_field(*handlers, EXPAT_DEFAULT_HANDLER, ocaml_handler);
     XML_SetDefaultHandler(xml_parser, c_handler);
-  
+
     CAMLreturn (Val_unit);
 }
 
-/* 
+/*
  * external set_default_handler : expat_parser -> (string -> unit) -> unit =
  *   "expat_XML_SetDefaultHandler"
  */
@@ -865,29 +865,29 @@ expat_XML_ResetDefaultHandler(value parser)
  * External Entity Ref handler, setting and resetting
  */
 static int
-external_entity_ref_handler(XML_Parser xml_parser, 
+external_entity_ref_handler(XML_Parser xml_parser,
 			    const char *context, const char *base,
-			    const char *systemId, const char *publicId) 
+			    const char *systemId, const char *publicId)
 {
     CAMLparam0();
     CAMLlocal4(caml_context, caml_base, caml_systemId, caml_publicId);
     value *handlers = XML_GetUserData(xml_parser);
     value arg[4];
 
-    /* 
+    /*
      * Now put the strings into ocaml values. The parameters context,
-     * base, and publicId are optional systemId is never optional.  
+     * base, and publicId are optional systemId is never optional.
      */
     caml_context = Val_option_string(context);
     caml_base = Val_option_string(base);
-    caml_systemId = copy_string(systemId); 
+    caml_systemId = copy_string(systemId);
     caml_publicId = Val_option_string(publicId);
 
     /* Call the callback which has more than 3 parameters */
     arg[0] = caml_context;
     arg[1] = caml_base;
     arg[2] = caml_systemId;
-    arg[3] = caml_publicId;  
+    arg[3] = caml_publicId;
     callbackN(Field(*handlers, EXPAT_EXTERNAL_ENTITY_REF_HANDLER), 4, arg);
 
     CAMLreturn (XML_STATUS_OK);
@@ -895,7 +895,7 @@ external_entity_ref_handler(XML_Parser xml_parser,
 
 static value
 set_external_entity_ref_handler(value parser,
-				XML_ExternalEntityRefHandler c_handler, 
+				XML_ExternalEntityRefHandler c_handler,
 				value ocaml_handler)
 {
     CAMLparam2(parser, ocaml_handler);
@@ -904,21 +904,21 @@ set_external_entity_ref_handler(value parser,
 
     Store_field(*handlers, EXPAT_EXTERNAL_ENTITY_REF_HANDLER, ocaml_handler);
     XML_SetExternalEntityRefHandler(xml_parser, c_handler);
-  
+
     CAMLreturn (Val_unit);
 }
 
 /*
- * external set_external_entity_ref_handler : expat_parser -> 
- *   (string option -> string option -> string -> string option -> unit) -> 
+ * external set_external_entity_ref_handler : expat_parser ->
+ *   (string option -> string option -> string -> string option -> unit) ->
  *     unit = "expat_XML_SetExternalEntityRefHandler"
  */
 CAMLprim value
 expat_XML_SetExternalEntityRefHandler(value parser, value handler)
 {
     CAMLparam2(parser, handler);
-    CAMLreturn (set_external_entity_ref_handler(parser, 
-						external_entity_ref_handler, 
+    CAMLreturn (set_external_entity_ref_handler(parser,
+						external_entity_ref_handler,
 						handler));
 }
 
