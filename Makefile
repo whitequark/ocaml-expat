@@ -69,7 +69,7 @@ doc: FORCE
 testall: test testopt
 .PHONY: test
 test: unittest
-	./unittest
+	CAML_LD_LIBRARY_PATH=$(pwd) ./unittest
 .PHONY: testopt
 testopt: unittest.opt
 	./unittest.opt
