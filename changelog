@@ -1,3 +1,10 @@
+ocaml-expat-1.0.0
+
+  - New maintainer (whitequark@whitequark.org)
+  - Support for the bytes type
+  - Build system improvements to support cross-compilation and systems
+    without shared libraries
+
 ocaml-expat-0.9.0
 
   - Small makefile improvements.
