@@ -13,6 +13,7 @@ C_OBJECTS=expat_stubs$(EXT_OBJ)
 
 ARCHIVE=$(NAME).cma
 XARCHIVE=$(ARCHIVE:.cma=.cmxa)
+XSARCHIVE=$(ARCHIVE:.cma=.cmxs)
 CARCHIVE_NAME=mlexpat
 CARCHIVE=lib$(CARCHIVE_NAME)$(EXT_LIB)
 
@@ -48,11 +49,14 @@ $(ARCHIVE): $(CARCHIVE) $(OBJECTS)
 $(XARCHIVE): $(CARCHIVE) $(XOBJECTS)
 	$(OCAMLMKLIB) -o $(NAME) $(XOBJECTS) -oc $(CARCHIVE_NAME) \
 	-L$(EXPAT_LIBDIR) $(EXPAT_LIB)
+$(XSARCHIVE): $(XARCHIVE)
+	$(OCAMLOPT) -linkall -shared -o $(XSARCHIVE) $(XARCHIVE) \
+	-ccopt -L$(EXPAT_LIBDIR) -cclib $(EXPAT_LIB)
 
 ## Installation
 .PHONY: install
 install: all
-	{ test ! -f $(XARCHIVE) || extra="$(XARCHIVE) $(NAME)$(EXT_LIB)"; }; \
+	{ test ! -f $(XARCHIVE) || extra="$(XARCHIVE) $(XSARCHIVE) $(NAME)$(EXT_LIB)"; }; \
 	$(OCAMLFIND) install $(NAME) META $(NAME).cmi $(NAME).mli $(ARCHIVE) \
 	lib$(CARCHIVE_NAME)$(EXT_LIB) $$extra \
 	-optional dll$(CARCHIVE_NAME)$(EXT_DLL)
