@@ -33,7 +33,7 @@ include $(OCAMLDIR)/Makefile.config
 .PHONY: all
 all: $(ARCHIVE)
 .PHONY: allopt
-allopt:  $(XARCHIVE)
+allopt:  $(XARCHIVE) $(XSARCHIVE)
 
 depend: *.c *.ml *.mli
 	gcc -I $(OCAMLDIR) -MM *.c > depend
@@ -49,8 +49,8 @@ $(ARCHIVE): $(CARCHIVE) $(OBJECTS)
 $(XARCHIVE): $(CARCHIVE) $(XOBJECTS)
 	$(OCAMLMKLIB) -o $(NAME) $(XOBJECTS) -oc $(CARCHIVE_NAME) \
 	-L$(EXPAT_LIBDIR) $(EXPAT_LIB)
-$(XSARCHIVE): $(XARCHIVE)
-	$(OCAMLOPT) -linkall -shared -o $(XSARCHIVE) $(XARCHIVE) \
+$(XSARCHIVE): $(CARCHIVE) $(XOBJECTS)
+	$(OCAMLOPT) -linkall -shared -o $(XSARCHIVE) $(XOBJECTS) $(CARCHIVE) \
 	-ccopt -L$(EXPAT_LIBDIR) -cclib $(EXPAT_LIB)
 
 ## Installation
