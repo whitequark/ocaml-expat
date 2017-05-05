@@ -13,6 +13,7 @@ C_OBJECTS=expat_stubs$(EXT_OBJ)
 
 ARCHIVE=$(NAME).cma
 XARCHIVE=$(ARCHIVE:.cma=.cmxa)
+XSARCHIVE=$(ARCHIVE:.cma=.cmxs)
 CARCHIVE_NAME=mlexpat
 CARCHIVE=lib$(CARCHIVE_NAME)$(EXT_LIB)
 
@@ -29,10 +30,15 @@ OCAMLDOC=$(OCAMLFIND) ocamldoc $(OCAMLPKGS)
 OCAMLDIR=$(shell $(OCAMLFIND) query stdlib)
 include $(OCAMLDIR)/Makefile.config
 
+OPT_TARGETS=	$(XARCHIVE)
+ifeq ($(SUPPORTS_SHARED_LIBRARIES),true)
+OPT_TARGETS+=	$(XSARCHIVE)
+endif
+ 
 .PHONY: all
 all: $(ARCHIVE)
 .PHONY: allopt
-allopt:  $(XARCHIVE)
+allopt:  $(OPT_TARGETS)
 
 depend: *.c *.ml *.mli
 	gcc -I $(OCAMLDIR) -MM *.c > depend
@@ -48,11 +54,14 @@ $(ARCHIVE): $(CARCHIVE) $(OBJECTS)
 $(XARCHIVE): $(CARCHIVE) $(XOBJECTS)
 	$(OCAMLMKLIB) -o $(NAME) $(XOBJECTS) -oc $(CARCHIVE_NAME) \
 	-L$(EXPAT_LIBDIR) $(EXPAT_LIB)
+$(XSARCHIVE): $(CARCHIVE) $(XOBJECTS)
+	$(OCAMLOPT) -linkall -shared -o $(XSARCHIVE) $(XOBJECTS) $(CARCHIVE) \
+	-ccopt -L$(EXPAT_LIBDIR) -cclib $(EXPAT_LIB)
 
 ## Installation
 .PHONY: install
 install: all
-	{ test ! -f $(XARCHIVE) || extra="$(XARCHIVE) $(NAME)$(EXT_LIB)"; }; \
+	{ test ! -f $(XARCHIVE) || extra="$(OPT_TARGETS) $(NAME)$(EXT_LIB)"; }; \
 	$(OCAMLFIND) install $(NAME) META $(NAME).cmi $(NAME).mli $(ARCHIVE) \
 	lib$(CARCHIVE_NAME)$(EXT_LIB) $$extra \
 	-optional dll$(CARCHIVE_NAME)$(EXT_DLL)
