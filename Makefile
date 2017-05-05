@@ -30,10 +30,15 @@ OCAMLDOC=$(OCAMLFIND) ocamldoc $(OCAMLPKGS)
 OCAMLDIR=$(shell $(OCAMLFIND) query stdlib)
 include $(OCAMLDIR)/Makefile.config
 
+OPT_TARGETS=	$(XARCHIVE)
+ifeq ($(SUPPORTS_SHARED_LIBRARIES),true)
+OPT_TARGETS+=	$(XSARCHIVE)
+endif
+ 
 .PHONY: all
 all: $(ARCHIVE)
 .PHONY: allopt
-allopt:  $(XARCHIVE) $(XSARCHIVE)
+allopt:  $(OPT_TARGETS)
 
 depend: *.c *.ml *.mli
 	gcc -I $(OCAMLDIR) -MM *.c > depend
@@ -56,7 +61,7 @@ $(XSARCHIVE): $(CARCHIVE) $(XOBJECTS)
 ## Installation
 .PHONY: install
 install: all
-	{ test ! -f $(XARCHIVE) || extra="$(XARCHIVE) $(XSARCHIVE) $(NAME)$(EXT_LIB)"; }; \
+	{ test ! -f $(XARCHIVE) || extra="$(OPT_TARGETS) $(NAME)$(EXT_LIB)"; }; \
 	$(OCAMLFIND) install $(NAME) META $(NAME).cmi $(NAME).mli $(ARCHIVE) \
 	lib$(CARCHIVE_NAME)$(EXT_LIB) $$extra \
 	-optional dll$(CARCHIVE_NAME)$(EXT_DLL)
