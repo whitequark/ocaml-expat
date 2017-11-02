@@ -433,7 +433,7 @@ let suite = "expat" >:::
 	  | n ->
               let a = Array.init n (fun x -> Bytes.create ((x + 2) * 200)) in
               let out = open_out "/dev/null" in
-		Array.iter (fun str -> output_string out str) a;
+		Array.iter (fun str -> output_bytes out str) a;
 		close_out out;
 		create_and_collect_garbage (n - 1)
 	in
@@ -517,7 +517,7 @@ let suite = "expat" >:::
 	    let rec parse _ =
 	      let n = input xml_spec buf 0 buflen in
 		if (n > 0) then
-		  (Expat.parse_sub p1 buf 0 n;
+		  (Expat.parse_sub p1 (to_string buf) 0 n;
 		   parse ())
 	    in
 	      parse ();
