@@ -1,3 +1,10 @@
+ocaml-expat-1.1.0
+
+  - OCaml 4.06 support
+    (by Vincent Laporte)
+  - Build .cmxs files
+    (by Jaap Boender)
+
 ocaml-expat-1.0.0
 
   - New maintainer (whitequark@whitequark.org)
