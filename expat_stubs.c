@@ -61,8 +61,8 @@ Val_option_string(const char *str)
     if(str == NULL) {
 	CAMLreturn (Val_int(0));
     } else {
-	some = alloc(1, 0);
-	some_str = copy_string(str);
+	some = caml_alloc(1, 0);
+	some_str = caml_copy_string(str);
 	Store_field(some, 0, some_str);
 	CAMLreturn (some);
     }
@@ -87,7 +87,7 @@ xml_parser_finalize(value parser)
 
     /* The handlers are no longer needed */
     *handlers = Val_unit;
-    remove_global_root(handlers);
+    caml_remove_global_root(handlers);
 
     /* Free the memory occupied by the parser */
     XML_ParserFree(xml_parser);
@@ -132,7 +132,7 @@ create_ocaml_expat_parser(XML_Parser xml_parser)
      * I don't know how to find out how much memory the parser consumes,
      * so I've set some figures here, which seems to do well.
      */
-    parser = alloc_custom(&xml_parser_ops, sizeof(XML_Parser), 1, 5000);
+    parser = caml_alloc_custom(&xml_parser_ops, sizeof(XML_Parser), 1, 5000);
     XML_Parser_val(parser) = xml_parser;
 
     /*
@@ -141,12 +141,12 @@ create_ocaml_expat_parser(XML_Parser xml_parser)
      */
     handlers = caml_stat_alloc(sizeof *handlers);
     *handlers = Val_unit;
-    register_global_root(handlers);
+    caml_register_global_root(handlers);
 
     /*
      * Create a tuple which will hold the handlers.
      */
-    *handlers = alloc_tuple(NUM_HANDLERS);
+    *handlers = caml_alloc_tuple(NUM_HANDLERS);
     for(i = 0; i < NUM_HANDLERS; i++) {
 	Field(*handlers, i) = Val_unit;
     }
@@ -198,7 +198,7 @@ expat_XML_ExternalEntityParserCreate(value p, value context, value encoding) {
 	XML_ExternalEntityParserCreate(XML_Parser_val(p),
 				       String_option_val(context),
 				       String_option_val(encoding));
-    parser = alloc_custom(&xml_parser_ops, sizeof(XML_Parser), 1, 5000);
+    parser = caml_alloc_custom(&xml_parser_ops, sizeof(XML_Parser), 1, 5000);
     XML_Parser_val(parser) = xml_parser;
 
     /*
@@ -207,14 +207,14 @@ expat_XML_ExternalEntityParserCreate(value p, value context, value encoding) {
      */
     handlers = caml_stat_alloc(sizeof *handlers);
     *handlers = Val_unit;
-    register_global_root(handlers);
+    caml_register_global_root(handlers);
 
     /*
      * Create a tuple which will hold the handlers, and inherit the
      * handlers installed in the parent parser.
      */
     parent_handlers = XML_GetUserData(xml_parser);
-    *handlers = alloc_tuple(NUM_HANDLERS);
+    *handlers = caml_alloc_tuple(NUM_HANDLERS);
     for(i = 0; i < NUM_HANDLERS; i++) {
 	Field(*handlers, i) = Field(*parent_handlers, i);
     }
@@ -305,7 +305,7 @@ expat_XML_GetCurrentLineNumber(value parser)
 CAMLprim value
 expat_XML_ExpatVersion(value unit)
 {
-    return copy_string(XML_ExpatVersion());
+    return caml_copy_string(XML_ExpatVersion());
 }
 
 /*
@@ -334,8 +334,8 @@ expat_XML_ErrorString(value error_code)
      * it checks for NULL, because that is the safest way.
      */
     if (error_string == NULL)
-	CAMLreturn (alloc_string(0));
-    CAMLreturn (copy_string(error_string));
+	CAMLreturn (caml_alloc_string(0));
+    CAMLreturn (caml_copy_string(error_string));
 }
 
 /*
@@ -349,11 +349,11 @@ expat_error(int error_code)
     if(expat_error_exn == NULL) {
 	expat_error_exn = caml_named_value("expat_error");
 	if(expat_error_exn == NULL) {
-	    invalid_argument("Exception Expat_error not initialized");
+	    caml_invalid_argument("Exception Expat_error not initialized");
 	}
     }
 
-    raise_with_arg(*expat_error_exn, Val_long(error_code));
+    caml_raise_with_arg(*expat_error_exn, Val_long(error_code));
 }
 
 /*
@@ -365,7 +365,7 @@ expat_XML_Parse(value parser, value string)
     CAMLparam2(parser, string);
     XML_Parser xml_parser =  XML_Parser_val(parser);
 
-    if(!XML_Parse(xml_parser, String_val(string), string_length(string), 0)) {
+    if(!XML_Parse(xml_parser, String_val(string), caml_string_length(string), 0)) {
 	expat_error(XML_GetErrorCode(xml_parser));
     }
 
@@ -383,12 +383,12 @@ expat_XML_ParseSub(value vparser, value vstring, value voffset, value vlen)
     XML_Parser parser =  XML_Parser_val(vparser);
     int len = Int_val(vlen);
     int offset = Int_val(voffset);
-    int string_len = string_length(vstring);
+    int string_len = caml_string_length(vstring);
     char *string = String_val(vstring);
 
     /* sanity check on the parameters */
     if((offset < 0) || (len < 0) || (offset > (string_len - len))) {
-	invalid_argument("Expat.parse_sub");
+	caml_invalid_argument("Expat.parse_sub");
     }
 
     if(!XML_Parse(parser, string + offset, len, 0)) {
@@ -431,12 +431,12 @@ start_element_handler(void *user_data, const char *name, const char **attr)
     /* Create an assoc list with the attributes */
     for(i = 0; attr[i]; i += 2) {
 	/* Create a tuple */
-	att = alloc_tuple(2);
-	Store_field(att, 0, copy_string(attr[i]));
-	Store_field(att, 1, copy_string(attr[i + 1]));
+	att = caml_alloc_tuple(2);
+	Store_field(att, 0, caml_copy_string(attr[i]));
+	Store_field(att, 1, caml_copy_string(attr[i + 1]));
 
 	/* Create a cons */
-	cons = alloc_tuple(2);
+	cons = caml_alloc_tuple(2);
 	Store_field(cons, 0, att);
 	Store_field(cons, 1, Val_unit);
 	if(prev != Val_unit) {
@@ -447,8 +447,8 @@ start_element_handler(void *user_data, const char *name, const char **attr)
 	    list = cons;
 	}
     }
-    tag = copy_string(name);
-    callback2(Field(*handlers, EXPAT_START_ELEMENT_HANDLER), tag, list);
+    tag = caml_copy_string(name);
+    caml_callback2(Field(*handlers, EXPAT_START_ELEMENT_HANDLER), tag, list);
 
     CAMLreturn0;
 }
@@ -496,8 +496,8 @@ end_element_handler(void *user_data, const char *name)
     value tag;
     value *handlers = user_data;
 
-    tag = copy_string(name);
-    callback(Field(*handlers, EXPAT_END_ELEMENT_HANDLER), tag);
+    tag = caml_copy_string(name);
+    caml_callback(Field(*handlers, EXPAT_END_ELEMENT_HANDLER), tag);
 }
 
 static value
@@ -546,9 +546,9 @@ character_data_handler(void *user_data, const char *data, int len)
     CAMLlocal1(str);
     value *handlers = user_data;
 
-    str = alloc_string(len);
+    str = caml_alloc_string(len);
     memcpy(String_val(str), data, len);
-    callback(Field(*handlers, EXPAT_CHARACTER_DATA_HANDLER), str);
+    caml_callback(Field(*handlers, EXPAT_CHARACTER_DATA_HANDLER), str);
 
     CAMLreturn0;
 }
@@ -602,9 +602,9 @@ processing_instruction_handler(void *user_data,  const char *target,
     CAMLlocal2(t, d);
     value *handlers = user_data;
 
-    t = copy_string(target);
-    d = copy_string(data);
-    callback2(Field(*handlers, EXPAT_PROCESSING_INSTRUCTION_HANDLER), t, d);
+    t = caml_copy_string(target);
+    d = caml_copy_string(data);
+    caml_callback2(Field(*handlers, EXPAT_PROCESSING_INSTRUCTION_HANDLER), t, d);
 
     CAMLreturn0;
 }
@@ -660,8 +660,8 @@ comment_handler(void *user_data, const char *data)
     CAMLlocal1(d);
 
     value *handlers = user_data;
-    d = copy_string(data);
-    callback(Field(*handlers, EXPAT_COMMENT_HANDLER), d);
+    d = caml_copy_string(data);
+    caml_callback(Field(*handlers, EXPAT_COMMENT_HANDLER), d);
 
     CAMLreturn0;
 }
@@ -711,7 +711,7 @@ start_cdata_handler(void *user_data)
     CAMLparam0();
     value *handlers = user_data;
 
-    callback(Field(*handlers, EXPAT_START_CDATA_HANDLER), Val_unit);
+    caml_callback(Field(*handlers, EXPAT_START_CDATA_HANDLER), Val_unit);
 
     CAMLreturn0;
 }
@@ -762,7 +762,7 @@ end_cdata_handler(void *user_data)
     CAMLparam0();
     value *handlers = user_data;
 
-    callback(Field(*handlers, EXPAT_END_CDATA_HANDLER), Val_unit);
+    caml_callback(Field(*handlers, EXPAT_END_CDATA_HANDLER), Val_unit);
 
     CAMLreturn0;
 }
@@ -815,9 +815,9 @@ default_handler(void *user_data, const char *data, int len)
     CAMLlocal1(d);
     value *handlers = user_data;
 
-    d = alloc_string(len);
+    d = caml_alloc_string(len);
     memmove(String_val(d), data, len);
-    callback(Field(*handlers, EXPAT_DEFAULT_HANDLER), d);
+    caml_callback(Field(*handlers, EXPAT_DEFAULT_HANDLER), d);
 
     CAMLreturn0;
 }
@@ -880,7 +880,7 @@ external_entity_ref_handler(XML_Parser xml_parser,
      */
     caml_context = Val_option_string(context);
     caml_base = Val_option_string(base);
-    caml_systemId = copy_string(systemId);
+    caml_systemId = caml_copy_string(systemId);
     caml_publicId = Val_option_string(publicId);
 
     /* Call the callback which has more than 3 parameters */
@@ -888,7 +888,7 @@ external_entity_ref_handler(XML_Parser xml_parser,
     arg[1] = caml_base;
     arg[2] = caml_systemId;
     arg[3] = caml_publicId;
-    callbackN(Field(*handlers, EXPAT_EXTERNAL_ENTITY_REF_HANDLER), 4, arg);
+    caml_callbackN(Field(*handlers, EXPAT_EXTERNAL_ENTITY_REF_HANDLER), 4, arg);
 
     CAMLreturn (XML_STATUS_OK);
 }

@@ -1,5 +1,5 @@
 name = "expat"
-version = "1.1.0"
+version = "1.1.1"
 description = "OCaml wrapper for the Expat XML parser"
 archive(byte) = "expat.cma"
 archive(byte, plugin) = "expat.cma"
